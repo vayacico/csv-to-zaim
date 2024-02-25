@@ -1,7 +1,7 @@
 {
   "name": "csv-to-zaim",
   "productName": "csv-to-zaim",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CSVファイルをZaimにアップロードするアプリケーション",
   "main": ".webpack/main",
   "scripts": {
