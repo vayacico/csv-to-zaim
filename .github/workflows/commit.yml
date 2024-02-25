@@ -17,8 +17,8 @@ jobs:
         with:
           node-version: 16
 
-      - name: yarn ci
-        run: yarn ci
+      - name: yarn install
+        run: yarn install
 
       - name: package
         run: |
