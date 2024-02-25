@@ -1,8 +1,8 @@
 {
-  "name": "my-new-app",
-  "productName": "my-new-app",
+  "name": "csv-to-zaim",
+  "productName": "csv-to-zaim",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "CSVファイルをZaimにアップロードするアプリケーション",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",

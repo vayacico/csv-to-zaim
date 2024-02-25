@@ -1,0 +1,63 @@
+name: commit
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Install Node.js and NPM
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: yarn ci
+        run: yarn ci
+
+      - name: package
+        run: |
+          yarn make
+          echo "build_binary_name=$(Get-ChildItem  .\out\make\squirrel.windows\x64\*.exe -Name)" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "build_binary_path=.\out\make\squirrel.windows\x64\$(Get-ChildItem  .\out\make\squirrel.windows\x64\*.exe -Name)" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+        env:
+          ZAIM_CONSUMER_KEY: ${{ secrets.ZAIM_CONSUMER_KEY }}
+          ZAIM_CONSUMER_SECRET: ${{ secrets.ZAIM_CONSUMER_SECRET }}
+
+      - name: Create Tag
+        run: |
+          $APP_VERSION=cat .\package.json | jq -r '.version'
+          echo "app_version=$APP_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Append
+          git tag $APP_VERSION
+          git push origin $APP_VERSION
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          node-version: 16
+          tag_name: ${{ env.app_version }}
+          release_name: ${{ env.app_version }}
+          draft: true
+          prerelease: true
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          node-version: 16
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.build_binary_path }}
+          asset_name: ${{ env.build_binary_name }}
+          asset_content_type: application/exe
+
